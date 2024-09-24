@@ -1,7 +1,8 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { storePost } from '@/lib/posts';
+import { storePost, updatePostLikeStatus } from '@/lib/posts';
 import { uploadImage } from '@/lib/cloudinary';
 
 export async function createPost(prevState, formData) {
@@ -33,7 +34,7 @@ export async function createPost(prevState, formData) {
     imageUrl = await uploadImage(image);
   } catch (error) {
     throw new Error(
-      'Image upload failed, post was not created. Please try again later.'
+      'Image upload failed, post was not created. Please try again later. run open create'
     );
   }
 
@@ -45,4 +46,11 @@ export async function createPost(prevState, formData) {
   });
 
   redirect('/feed');
+}
+
+export async function togglePostLikeStatus(postId) {
+  await updatePostLikeStatus(postId, 2);
+
+  // memperbarui konten statis tanpa perlu membangun ulang seluruh situs
+  revalidatePath('/', 'layout');
 }
