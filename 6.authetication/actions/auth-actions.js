@@ -1,5 +1,9 @@
 'use server';
 
+import { hashUserPassword } from '@/lib/hash';
+import { createUser } from '@/lib/user';
+import { redirect } from 'next/navigation';
+
 export async function signup(prevState, formData) {
   const email = formData.get('email');
   const password = formData.get('password');
@@ -20,5 +24,23 @@ export async function signup(prevState, formData) {
     };
   }
 
-  // store in database
+  const hashedPassword = hashUserPassword(password);
+
+  try {
+    // store in database
+    createUser(email, hashedPassword);
+  } catch (error) {
+    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      return {
+        errors: {
+          email:
+            'It seems like an account for the chosen email already exists.',
+        },
+      };
+    }
+    // agar menjalankan cek unique
+    throw error;
+  }
+
+  redirect('/training');
 }
