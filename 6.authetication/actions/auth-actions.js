@@ -1,7 +1,8 @@
 'use server';
 
-import { hashUserPassword } from '@/lib/hash';
-import { createUser } from '@/lib/user';
+import { createAuthSession } from '@/lib/auth';
+import { hashUserPassword, verifyPassword } from '@/lib/hash';
+import { createUser, getUserByEmail } from '@/lib/user';
 import { redirect } from 'next/navigation';
 
 export async function signup(prevState, formData) {
@@ -28,7 +29,9 @@ export async function signup(prevState, formData) {
 
   try {
     // store in database
-    createUser(email, hashedPassword);
+    const id = createUser(email, hashedPassword);
+    await createAuthSession(id);
+    redirect('/training');
   } catch (error) {
     if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
       return {
@@ -41,6 +44,39 @@ export async function signup(prevState, formData) {
     // agar menjalankan cek unique
     throw error;
   }
+}
 
+export async function login(prevState, formData) {
+  const email = formData.get('email');
+  const password = formData.get('password');
+
+  const existingUser = getUserByEmail(email);
+
+  if (!existingUser) {
+    return {
+      errors: {
+        email: 'Could not authenticate user, please cek your credentials',
+      },
+    };
+  }
+
+  const isValidPassword = verifyPassword(existingUser.password, password);
+
+  if (!isValidPassword) {
+    return {
+      errors: {
+        password: 'Could not authenticate user, please cek your credentials',
+      },
+    };
+  }
+
+  await createAuthSession(existingUser.id);
   redirect('/training');
+}
+
+export async function auth(mode, prevState, formData) {
+  if (mode === 'login') {
+    return login(prevState, formData);
+  }
+  return signup(prevState, formData);
 }
