@@ -1,10 +1,14 @@
-import path from 'path';
-import fs from 'fs/promises';
+import path from "path";
+import fs from "fs/promises";
 
-import { Fragment } from 'react';
+import { Fragment } from "react";
 
 function productDetailPage(props) {
   const { loadedProduct } = props;
+
+  // if (!loadedProduct) {
+  //   return <p>Loading...</p>;
+  // }
 
   return (
     <Fragment>
@@ -19,7 +23,7 @@ export async function getStaticProps(context) {
 
   const productId = params.pid;
 
-  const filePath = path.join(process.cwd(), 'data', 'dummy-backend.json');
+  const filePath = path.join(process.cwd(), "data", "dummy-backend.json");
   const jsonData = await fs.readFile(filePath);
   const data = JSON.parse(jsonData);
 
@@ -29,6 +33,19 @@ export async function getStaticProps(context) {
     props: {
       loadedProduct: product,
     },
+  };
+}
+
+export async function getStaticPaths(params) {
+  return {
+    paths: [
+      {
+        params: {
+          pid: "p1",
+        },
+      },
+    ],
+    fallback: 'blocking',
   };
 }
 
