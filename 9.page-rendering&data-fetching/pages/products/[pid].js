@@ -45,6 +45,10 @@ export async function getStaticProps(context) {
   };
 }
 
+
+// untuk menentukan halaman mana saja yang akan digenerate saat build time
+// kita bisa menggunakan getStaticPaths
+// getStaticPaths harus mengembalikan object yang berisi paths dan fallback
 export async function getStaticPaths() {
   const data = await getData();
 
