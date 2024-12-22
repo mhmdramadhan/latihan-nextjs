@@ -1,36 +1,31 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from 'react';
+import useSWR from 'swr';
 
-function LastSalesPage() {
-  const [sales, setSales] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+function LastSalesPage(props) {
+  const { data, error } = useSWR(
+    'https://nextjs-course-28911-default-rtdb.firebaseio.com/sales.json',
+    fetcher
+  );
+
+  const [sales, setSales] = useState(props.sales);
 
   useEffect(() => {
-    setIsLoading(true);
-    fetch("https://nextjs-course-28911-default-rtdb.firebaseio.com/sales.json")
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        const salesArray = [];
-        for (const key in data) {
-          salesArray.push({
-            id: key,
-            ...data[key],
-          });
-        }
-        setSales(salesArray);
-        setIsLoading(false);
-        console.log(data);
-      });
-  }, []);
+    if (data) {
+      const salesArray = [];
+      for (const key in data) {
+        salesArray.push({
+          id: key,
+          ...data[key],
+        });
+      }
+      setSales(salesArray);
+    }
+  }, [data]);
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
-
-  if (sales.length === 0) {
-    return <p>No sales found.</p>;
-  }
+  if (error) return <div>Failed to load</div>;
+  if (!data) return <div>Loading...</div>;
 
   return (
     <ul>
@@ -41,6 +36,32 @@ function LastSalesPage() {
       ))}
     </ul>
   );
+}
+
+export async function getStaticProps() {
+  const response = await fetch(
+    'https://nextjs-course-28911-default-rtdb.firebaseio.com/sales.json'
+  );
+
+  const data = await response.json();
+
+  // transfrorm data
+  const transformedSales = [];
+
+  for (const key in data) {
+    transformedSales.push({
+      id: key,
+      username: data[key].username,
+      volume: data[key].volume,
+    });
+  }
+
+  return {
+    props: {
+      sales: transformedSales,
+    },
+    // revalidate: 10,
+  };
 }
 
 export default LastSalesPage;
