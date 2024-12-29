@@ -1,6 +1,8 @@
-import { useRef } from "react";
+import { useRef, useState } from 'react';
 
 function HomePage() {
+  const [feedbackItems, setFeedbackItems] = useState([]);
+
   const emailInputRef = useRef();
   const feedbackInputRef = useRef();
 
@@ -12,13 +14,21 @@ function HomePage() {
 
     const reqBody = { email: enteredEmail, text: enteredFeedback };
 
-    fetch("/api/feedback", {
-      method: "POST",
+    fetch('/api/feedback', {
+      method: 'POST',
       body: JSON.stringify(reqBody),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-    });
+    })
+      .then((response) => response.json())
+      .then((data) => setFeedbackItems((prev) => prev.concat(data.feedback)));
+  }
+
+  function loadFeedbackHandler() {
+    fetch('/api/feedback')
+      .then((response) => response.json())
+      .then((data) => setFeedbackItems(data.feedback));
   }
 
   return (
@@ -31,10 +41,22 @@ function HomePage() {
         </div>
         <div>
           <label htmlFor="feedback">Your Feedback</label>
-          <textarea name="feedback" id="feedback" rows="5" ref={feedbackInputRef}></textarea>
+          <textarea
+            name="feedback"
+            id="feedback"
+            rows="5"
+            ref={feedbackInputRef}
+          ></textarea>
         </div>
         <button>Send Feedback</button>
       </form>
+      <hr />
+      <button onClick={loadFeedbackHandler}>Load Feedback</button>
+      <ul>
+        {feedbackItems.map((item) => (
+          <li key={item.id}>{item.text}</li>
+        ))}
+      </ul>
     </div>
   );
 }
