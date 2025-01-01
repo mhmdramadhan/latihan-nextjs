@@ -11,6 +11,8 @@ import Comments from '../../components/input/comments';
 function EventDetailPage(props) {
   const event = props.selectedEvent;
 
+  const comments = event.comments?.length > 0 ? event.comments : [];
+
   if (!event) {
     return (
       <div className="center">
@@ -23,10 +25,7 @@ function EventDetailPage(props) {
     <Fragment>
       <Head>
         <title>{event.title}</title>
-        <meta
-          name='description'
-          content={event.description}
-        />
+        <meta name="description" content={event.description} />
       </Head>
       <EventSummary title={event.title} />
       <EventLogistics
@@ -38,7 +37,7 @@ function EventDetailPage(props) {
       <EventContent>
         <p>{event.description}</p>
       </EventContent>
-      <Comments eventId={event.id} />
+      <Comments eventId={event.id} commentsData={comments} />
     </Fragment>
   );
 }
@@ -50,20 +49,20 @@ export async function getStaticProps(context) {
 
   return {
     props: {
-      selectedEvent: event
+      selectedEvent: event,
     },
-    revalidate: 30
+    revalidate: 30,
   };
 }
 
 export async function getStaticPaths() {
   const events = await getFeaturedEvents();
 
-  const paths = events.map(event => ({ params: { eventId: event.id } }));
+  const paths = events.map((event) => ({ params: { eventId: event.id } }));
 
   return {
     paths: paths,
-    fallback: 'blocking'
+    fallback: 'blocking',
   };
 }
 
