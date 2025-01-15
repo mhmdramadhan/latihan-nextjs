@@ -7,6 +7,8 @@ const NotificationContext = createContext({
 });
 
 export function NotificationContextProvider(props) {
+  const [notification, setNotification] = useState(null);
+
   const showNotificationHandler = (notificationData) => {
     setNotification(notificationData);
   };
@@ -14,8 +16,6 @@ export function NotificationContextProvider(props) {
   const hideNotificationHandler = () => {
     setNotification(null);
   };
-
-  const [notification, setNotification] = useState(null);
 
   const context = {
     notification: notification,
