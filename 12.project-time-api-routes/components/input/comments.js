@@ -1,20 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import CommentList from './comment-list';
 import NewComment from './new-comment';
 import classes from './comments.module.css';
+import NotificationCtx from '../../store/notification-contex';
 
 function Comments(props) {
   const { eventId } = props;
 
+  const notificationCtx = useContext(NotificationCtx);
+
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState([]);
+  const [isFetchingComments, setIsFetchingComments] = useState(false);
 
   useEffect(() => {
     if (showComments) {
+      setIsFetchingComments(true);
       fetch(`/api/comments/${eventId}`)
         .then((response) => response.json())
-        .then((data) => setComments(data.comments));
+        .then((data) => {
+          setComments(data.comments);
+          setIsFetchingComments(false);
+        });
     }
   }, [showComments]);
 
@@ -23,6 +31,12 @@ function Comments(props) {
   }
 
   function addCommentHandler(commentData) {
+    notificationCtx.showNotification({
+      title: 'Sending comment...',
+      message: 'Your comment is currently being stored!',
+      status: 'pending',
+    });
+
     // send data to API
     const response = fetch(`/api/comments/${eventId}`, {
       method: 'POST',
@@ -32,9 +46,25 @@ function Comments(props) {
       },
     })
       .then((response) => response.json())
-      .then((data) => console.log(data));
+      .then((data) => {
+        const newComment = data.comment;
+        setComments((prevComments) => [...prevComments, newComment]);
+      
+        notificationCtx.showNotification({
+          title: 'Success!',
+          message: 'Successfully sent comment!',
+          status: 'success',
+        });
+      })
+      .catch((error) => {
+        notificationCtx.showNotification({
+          title: 'Error!',
+          message: 'Could not send comment!',
+          status: 'error',
+        });
+      });
 
-    // setComments((prevComments) => [...prevComments, commentData]);
+    
   }
 
   return (
@@ -43,7 +73,10 @@ function Comments(props) {
         {showComments ? 'Hide' : 'Show'} Comments
       </button>
       {showComments && <NewComment onAddComment={addCommentHandler} />}
-      {showComments && <CommentList comments={comments} />}
+      {showComments && !isFetchingComments && (
+        <CommentList comments={comments} />
+      )}
+      {showComments && isFetchingComments && <p>Loading...</p>}
     </section>
   );
 }
