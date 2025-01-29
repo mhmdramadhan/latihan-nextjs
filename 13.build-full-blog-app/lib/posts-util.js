@@ -40,7 +40,7 @@ function getAllPosts() {
   return sortedPosts;
 }
 
-function getFeaturedPosts() {
+export function getFeaturedPosts() {
   const allPosts = getAllPosts();
   //   filter post yang isFeatured true
   const featuredPosts = allPosts.filter((post) => post.isFeatured);
