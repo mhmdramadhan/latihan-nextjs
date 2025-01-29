@@ -6,15 +6,22 @@ import matter from 'gray-matter';
 // ambil data dari file markdown, yang ada di folder posts
 const postsDirectory = path.join(process.cwd(), 'posts');
 
-function getPostData(fileName) {
+// ambil semua file yang ada di folder posts
+export function getPostsFiles() {
+  return fs.readdirSync(postsDirectory);
+}
+
+
+export function getPostData(postIdentifier) {
+  //  ambil nama file dari postIdentifier dan hilangkan .md
+  const postSlug = postIdentifier.replace(/\.md$/, '');
   // posts/fileName
-  const filePath = path.join(postsDirectory, fileName);
+  const filePath = path.join(postsDirectory, `${postSlug}.md`);
   // baca isi file
   const fileContent = fs.readFileSync(filePath, 'utf-8');
   // ambil data dari file markdown
   const { data, content } = matter(fileContent);
 
-  const postSlug = fileName.replace(/\.md$/, '');
   const postData = {
     slug: postSlug,
     ...data,
@@ -24,9 +31,9 @@ function getPostData(fileName) {
   return postData;
 }
 
-function getAllPosts() {
+export function getAllPosts() {
   // ambil semua file yang ada di folder posts
-  const postFiles = fs.readdirSync(postsDirectory);
+  const postFiles = getPostsFiles();
 
   const allPosts = postFiles.map((postFile) => {
     return getPostData(postFile);
