@@ -12,6 +12,14 @@ function HomePage(props) {
   );
 }
 
+/**
+ * Fetches the static props for the index page.
+ *
+ * This function retrieves the featured posts and returns them as props.
+ * The page will be revalidated every 600 seconds.
+ *
+ * @returns {Promise<{props: {posts: Array}, revalidate: number}>} The static props for the page.
+ */
 export async function getStaticProps() {
   const featuredPosts = getFeaturedPosts();
 
@@ -24,6 +32,3 @@ export async function getStaticProps() {
 }
 
 export default HomePage;
-
-// 1) Hero => Present ourselves
-// 1) Featured Post
