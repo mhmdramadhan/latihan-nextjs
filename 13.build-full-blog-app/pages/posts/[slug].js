@@ -1,11 +1,21 @@
+import { Fragment } from 'react';
 import PostContent from '../../components/posts/post-detail/post-content';
 import { getPostData, getPostsFiles } from '../../lib/posts-util';
+import Head from 'next/head';
 
 /**
  * Halaman untuk menampilkan konten post berdasarkan slug.
  */
 function SinglePostPage(props) {
-  return <PostContent post={props.post} />;
+  return (
+    <Fragment>
+      <Head>
+        <title>{props.post.title}</title>
+        <meta name="description" content={props.post.excerpt} />
+      </Head>
+      <PostContent post={props.post} />
+    </Fragment>
+  );
 }
 
 /**
