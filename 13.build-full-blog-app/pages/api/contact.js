@@ -28,7 +28,7 @@ async function handler(req, res) {
     let client;
     try {
       // Connect to the MongoDB cluster
-      client = await MongoClient.connect('mongodb+srv://ramadhan:IBxLuKaP6RqsG6I0@cluster0.5zt6g.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
+      client = await MongoClient.connect('mongodb+srv://ramadhan:IBxLuKaP6RqsG6I0@cluster0.5zt6g.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0?directConnection=true');
     } catch (error) {
       res
         .status(500)

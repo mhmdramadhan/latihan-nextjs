@@ -1,13 +1,24 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import classes from './contact-form.module.css';
+import NotificationCtx from '../../store/notification-context';
+import Notification from '../ui/notification';
 
 function ContactForm() {
+  const notificationCtx = useContext(NotificationCtx);
+
+  const notification = notificationCtx.notification;
+
   const [enteredEmail, setEnteredEmail] = useState('');
   const [enteredName, setEnteredName] = useState('');
   const [enteredMessage, setEnteredMessage] = useState('');
 
-  function sendMessageHandler(event) {
+  async function sendMessageHandler(event) {
     event.preventDefault();
+    notificationCtx.showNotification({
+      title: 'Sending message...',
+      message: 'Your message is currently being sent...',
+      status: 'pending',
+    });
 
     // Add client-side validation
     if (
@@ -15,21 +26,52 @@ function ContactForm() {
       enteredName.trim() === '' ||
       enteredMessage.trim() === ''
     ) {
-      alert('Please enter a valid email address, name, and message.');
+      notificationCtx.showNotification({
+        title: 'Invalid input',
+        message: 'Please enter a valid email address, name, and message.',
+        status: 'error',
+      });
+
       return;
     }
 
-    fetch('/api/contact', {
-      method: 'POST',
-      body: JSON.stringify({
-        email: enteredEmail,
-        name: enteredName,
-        message: enteredMessage,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }); // Send a POST request to the API route
+    // Send a POST request to the API route
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: enteredEmail,
+          name: enteredName,
+          message: enteredMessage,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }); // Send a POST request to the API route
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong!');
+        return;
+      }
+
+      notificationCtx.showNotification({
+        title: 'Success!',
+        message: 'Message sent successfully!',
+        status: 'success',
+      });
+
+      setEnteredEmail('');
+      setEnteredMessage('');
+      setEnteredName('');
+    } catch (error) {
+      notificationCtx.showNotification({
+        title: 'Error',
+        message: error.message || 'Something went wrong!',
+        status: 'error',
+      });
+    }
   }
 
   return (
@@ -71,6 +113,13 @@ function ContactForm() {
           <button>Send Message</button>
         </div>
       </form>
+      {notification && (
+        <Notification
+          title={notification.title}
+          message={notification.message}
+          status={notification.status}
+        />
+      )}
     </section>
   );
 }
