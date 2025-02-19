@@ -1,7 +1,16 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
 const uri =
-  'mongodb+srv://ramadhan:IBxLuKaP6RqsG6I0@cluster0.5zt6g.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+  'mongodb+srv://ramadhan:HPuzaJJeMABB15Xf@cluster0.5zt6g.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
 
 async function handler(req, res) {
   if (req.method === 'POST') {
@@ -19,42 +28,23 @@ async function handler(req, res) {
       return;
     }
 
-    const newMessage = {
-      email,
-      name,
-      message,
-    };
-
-    let client;
     try {
-      // Connect to the MongoDB cluster
-      client = await MongoClient.connect('mongodb+srv://ramadhan:IBxLuKaP6RqsG6I0@cluster0.5zt6g.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0?directConnection=true');
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: 'Could not connect to database!', error: error });
-      return;
-    }
+      await client.connect();
+      const db = client.db('my-site');
+      const collection = db.collection('messages');
 
-    const db = client.db('my-site');
-    const messageCollection = db.collection('messages');
+      const result = await collection.insertOne({ email, name, message });
 
-    try {
-      // Insert the new message into the messages collection
-      const result = await messageCollection.insertOne(newMessage);
-      newMessage.id = result.insertedId;
+      res.status(201).json({ message: 'Message stored successfully!', result });
     } catch (error) {
       res
         .status(500)
         .json({ message: 'Storing message failed!', error: error });
-      return;
+    } finally {
+      await client.close();
     }
-
-    client.close();
-
-    res
-      .status(201)
-      .json({ message: 'Successfully stored message!', message: newMessage });
+  } else {
+    res.status(405).json({ message: 'Method not allowed.' });
   }
 }
 
