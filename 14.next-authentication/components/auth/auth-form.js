@@ -40,7 +40,6 @@ function AuthForm() {
 
     // optional: Add client-side validation
 
-
     if (isLogin) {
       // log user in
       const result = await signIn('credentials', {
@@ -49,7 +48,9 @@ function AuthForm() {
         password: enteredPassword,
       })
 
-      console.log(result);
+      if(!result.error){
+        // set some auth state
+      }
 
     } else {
       // create new user

@@ -1,16 +1,17 @@
 import NextAuth from "next-auth";
-import Providers from "next-auth/providers";
+import Credentials from "next-auth/providers/credentials";
 import { connectToDatabase } from "../../../lib/db";
 import { verifyPassword } from "../../../lib/auth";
 
 
 
 export default NextAuth({
-    session:{
-        jwt: true
+    session: {
+        strategy: "jwt", // Perubahan dari 'jwt: true' menjadi 'strategy: "jwt"'
     },
     providers: [
-        Providers.Credentials({
+        Credentials({
+            name: 'Credentials',
             authorize: async (credentials) => {
                 const db = await connectToDatabase();
 
