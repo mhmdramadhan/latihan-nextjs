@@ -14,12 +14,11 @@ export default NextAuth({
             name: 'Credentials',
             authorize: async (credentials) => {
                 const db = await connectToDatabase();
-
+                console.log(db);
                 const usersCollection = db.collection('users');
 
                 const user = await usersCollection.findOne({
                     email: credentials.email,
-                    password: credentials.password
                 })
 
                 if (!user) {
