@@ -17,7 +17,7 @@ async function handler(req, res) {
 
         if (existingUser) {
             res.status(422).json({ message: 'User exists already!' });
-            db.client.close();
+            // db.client.close();
             return;
         }
         // return res.status(201).json(db);
