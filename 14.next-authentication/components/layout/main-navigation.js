@@ -1,13 +1,14 @@
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
 import classes from './main-navigation.module.css';
 
 function MainNavigation() {
   const { data: session, status } = useSession(); // Ubah destructuring sesuai NextAuth v4
 
-  console.log("Session Status:", status);
-  console.log("Session Data:", session);
+  function logoutHandler() {
+    signOut();
+  }
 
 
   return (
@@ -29,7 +30,7 @@ function MainNavigation() {
             </li>
           )}
           {session && <li>
-            <button>Logout</button>
+            <button onClick={logoutHandler}>Logout</button>
           </li>}
 
         </ul>
