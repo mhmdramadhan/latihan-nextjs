@@ -11,13 +11,13 @@ async function handler(req, res) {
             return;
         }
 
-        const db = await connectToDatabase();
+        const client = await connectToDatabase();
 
-        const existingUser = await db.collection('users').findOne({ email });
+        const existingUser = await client.db("auth-demo").collection('users').findOne({ email });
 
         if (existingUser) {
             res.status(422).json({ message: 'User exists already!' });
-            // db.client.close();
+            client.close();
             return;
         }
         // return res.status(201).json(db);

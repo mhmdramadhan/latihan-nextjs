@@ -13,9 +13,10 @@ export default NextAuth({
         Credentials({
             name: 'Credentials',
             authorize: async (credentials) => {
-                const db = await connectToDatabase();
-                console.log(db);
-                const usersCollection = db.collection('users');
+
+                const client = await connectToDatabase();
+
+                const usersCollection = client.db("auth-demo").collection('users');
 
                 const user = await usersCollection.findOne({
                     email: credentials.email,
@@ -23,12 +24,14 @@ export default NextAuth({
 
                 if (!user) {
                     throw new Error('No user found!')
+                    client.close();
                 }
 
                 const isValid = await verifyPassword(credentials.password, user.password)
 
                 if (!isValid) {
                     throw new Error('Could not log you in!')
+                    client.close();
                 }
 
                 return { email: user.email }

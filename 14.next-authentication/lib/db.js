@@ -9,5 +9,5 @@ export async function connectToDatabase(callback) {
     const client = new MongoClient(uri);
     await client.connect();
 
-    return client.db("auth-demo"); // Kembalikan objek db langsung
+    return client; // Kembalikan objek db langsung
 }
