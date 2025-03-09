@@ -25,7 +25,7 @@ async function handler(req, res) {
 
         const hashedPassword = await hashPassword(password)
 
-        const result = await db.collection('users').insertOne({
+        const result = await client.db("auth-demo").collection('users').insertOne({
             email: email,
             password: hashedPassword
         });
