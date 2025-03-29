@@ -1,3 +1,5 @@
+"use client"
+
 import { useRef } from 'react';
 
 import Card from '../ui/Card';
@@ -9,7 +11,7 @@ function NewMeetupForm(props) {
     const addressInputRef = useRef();
     const descriptionInputRef = useRef();
 
-    function submitHandler(event) {
+    async function submitHandler(event) {
         event.preventDefault();
 
         const enteredTitle = titleInputRef.current.value;
@@ -24,7 +26,16 @@ function NewMeetupForm(props) {
             description: enteredDescription,
         };
 
-        props.onAddMeetup(meetupData);
+        const response = await fetch("/api/meetups", {
+            method: "POST",
+            body: JSON.stringify(meetupData),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        console.log(response);
+        
     }
 
     return (
