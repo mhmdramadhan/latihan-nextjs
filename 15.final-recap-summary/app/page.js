@@ -1,26 +1,14 @@
 import MeetupList from "@/components/meetups/MeetupList";
 
-const DUMMY_MEETUPS = [
-  {
-    id: "m1",
-    title: "A First Meetup",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/IndonesiaGelap_protests_1.jpg/250px-IndonesiaGelap_protests_1.jpg",
-    address: "Some address 5, 12345 Some City",
-    description: "This is a first meetup!",
-  },
-  {
-    id: "m2",
-    title: "A Second Meetup",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/IndonesiaGelap_protests_1.jpg/250px-IndonesiaGelap_protests_1.jpg",
-    address: "Some address 10, 12345 Some City",
-    description: "This is a second meetup!",
-  },
-];
+async function HomePage() {
+  // mengambil data dari API menggunakan metode SSR dengan ISR
+  const res = await fetch("http://localhost:3000/api/meetups", {
+    method: "GET",
+    next: { revalidate: 60 }, // Ini penting! Fungsi ISR ini akan memvalidasi cache setiap 60 detik
+  });
+  const data = await res.json();
 
-function HomePage() {
-  return <MeetupList meetups={DUMMY_MEETUPS} />;
+  return <MeetupList meetups={data} />;
 }
 
 export default HomePage;
