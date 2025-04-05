@@ -1,7 +1,7 @@
 import { getDummyMeetups } from "@/utils/meetups";
 
 export async function GET(req, { params }) {
-    const { id } = params; // Extract id from URL parameters
+    const { id } = await params; // Extract id from URL parameters
     const DUMMY_MEETUPS = getDummyMeetups();
 
     // Find the meetup by id
