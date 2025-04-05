@@ -1,3 +1,5 @@
+import { getDummyMeetups } from "@/utils/meetups";
+
 export async function POST(req) {
     try {
         const body = await req.json();
@@ -13,24 +15,7 @@ export async function POST(req) {
 }
 
 export async function GET() {
-    const DUMMY_MEETUPS = [
-        {
-            id: "m1",
-            title: "A First Meetup",
-            image:
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/IndonesiaGelap_protests_1.jpg/250px-IndonesiaGelap_protests_1.jpg",
-            address: "Some address 5, 12345 Some City",
-            description: "This is a first meetup!",
-        },
-        {
-            id: "m2",
-            title: "A Second Meetup",
-            image:
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/IndonesiaGelap_protests_1.jpg/250px-IndonesiaGelap_protests_1.jpg",
-            address: "Some address 10, 12345 Some City",
-            description: "This is a second meetup!",
-        },
-    ];
+    const DUMMY_MEETUPS = getDummyMeetups();
 
     return new Response(JSON.stringify(DUMMY_MEETUPS), {
         status: 200,
