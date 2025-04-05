@@ -1,6 +1,6 @@
 import MeetupDetail from "@/components/meetups/MeetupDetail";
+import Head from "next/head";
 import { getDummyMeetups } from "@/utils/meetups";
-
 
 export async function generateStaticParams() {
     try {
@@ -18,7 +18,6 @@ export async function generateStaticParams() {
         // jadi dirubah dulu ke file
         const meetups = getDummyMeetups();
 
-
         // Pastikan meetups adalah array
         if (!Array.isArray(meetups)) {
             throw new Error("Invalid meetups data");
@@ -34,14 +33,36 @@ export async function generateStaticParams() {
     }
 }
 
+// metadata static
+export async function generateMetadata({ params }) {
+    const { meetupId } = await params;
+
+    const res = await fetch(`http://localhost:3000/api/meetups/${meetupId}`, {
+        method: "GET",
+    });
+    const data = await res.json();
+
+    if (data.error) {
+        return {
+            title: "Meetup Not Found",
+            description: "The requested meetup could not be found.",
+        };
+    }
+
+    return {
+        title: data.title,
+        description: data.description,
+        keywords: "meetup, event, details",
+    };
+}
+
 // untuk jika ada penambahan ID baru maka akan di generate lagi
 export const dynamicParams = true;
 //  untuk membuild ulang halaman html setiap 60 detik sehingga data htmlnya terbaru walaupun menggunkan SSG
 export const revalidate = 60; // This is important! This ISR function will validate the cache every 60 seconds
 
 async function Page({ params }) {
-
-    const { meetupId } = await params
+    const { meetupId } = await params;
 
     // Fetch the meetup details from the API
     const res = await fetch(`http://localhost:3000/api/meetups/${meetupId}`, {
@@ -56,15 +77,20 @@ async function Page({ params }) {
 
     console.log(data);
 
-
     // Render the MeetupDetail component with the fetched data
-    return <MeetupDetail
-        img={data.image}
-        title={data.title}
-        address={data.address}
-        description={data.description}
-        id={data.id}
-    />
+    return (
+        <>
+            <MeetupDetail
+                img={data.image}
+                title={data.title}
+                address={data.address}
+                description={data.description}
+                id={data.id}
+            />
+        </>
+    );
 }
+
+
 
 export default Page;
